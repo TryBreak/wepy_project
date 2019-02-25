@@ -1,0 +1,129 @@
+<style lang="less">
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+.color-red {
+  color: red;
+}
+</style>
+
+<script>
+import wepy from 'wepy';
+import 'wepy-async-function';
+
+import { setStore } from 'wepy-redux';
+import configStore from './store';
+import { $_baseUrl } from './base.js';
+const store = configStore();
+setStore(store);
+export default class extends wepy.app {
+  config = {
+    pages: [
+      'pages/home/home' // 首页
+    ],
+    window: {
+      backgroundTextStyle: 'light',
+      navigationBarBackgroundColor: '#4A7BF0',
+      navigationBarTitleText: '小辞海',
+      navigationBarTextStyle: 'white',
+      enablePullDownRefresh: false,
+      backgroundColor: '#4A7BF0',
+      backgroundColorTop: '#4A7BF0'
+      // navigationStyle: 'custom' // 产品问了就说 title 改不了或者没必要改
+    }
+    // tabBar: {
+    //   backgroundColor: '#fff',
+    //   selectedColor: '#4A7BF0',
+    //   color: '#BBBBBB',
+    //   list: [
+    //     {
+    //       text: '首页',
+    //       pagePath: 'pages/home/home',
+    //       iconPath: './image/footerBar/home.png',
+    //       selectedIconPath: './image/footerBar/home-active.png'
+    //     }
+    //   ]
+    // }
+  };
+  globalData = {
+    userInfo: false
+  };
+  constructor() {
+    super();
+    this.use('requestfix');
+    this.login_main();
+  }
+  logABC(param) {
+    console.log(param);
+  }
+  // 登录系列
+  upUserInfo(detail, callback) {
+    if (detail && detail.userInfo) {
+      this.globalData.userInfo = detail.userInfo;
+      const postUrl = '/api/passport/auth';
+      wx.login({
+        success(res) {
+          if (res.code) {
+            const param = {
+              jsCode: res.code,
+              nickname: detail.userInfo.nickName,
+              avatar: detail.userInfo.avatarUrl
+            };
+            wepy.request({
+              url: $_baseUrl + postUrl,
+              data: param,
+              method: 'POST',
+              header: {
+                'content-type': 'application/x-www-form-urlencoded'
+              },
+              success(res) {
+                wx.setStorage({
+                  key: 'token',
+                  data: res.data.data.token
+                });
+                if (callback) {
+                  callback(detail);
+                }
+              },
+              fail(res) {
+                console.error('接口发生错误,位置 app.wpy');
+              }
+            });
+          } else {
+            console.log('登录失败！' + res.errMsg);
+          }
+        }
+      });
+    } else {
+      console.log('用户拒绝了授权');
+      this.globalData.userInfo = false;
+    }
+  }
+  getUserInfo(callback) {
+    const _this = this;
+    wx.getUserInfo({
+      success(res) {
+        _this.upUserInfo(res, callback);
+      }
+    });
+  }
+  login_main(callback) {
+    const _this = this;
+    wx.getSetting({
+      success(res) {
+        if (res.authSetting['scope.userInfo']) {
+          _this.getUserInfo(callback);
+        } else {
+          console.log('用户未授权');
+          _this.globalData.userInfo = false;
+        }
+      }
+    });
+  }
+}
+</script>

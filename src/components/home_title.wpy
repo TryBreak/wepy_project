@@ -1,0 +1,71 @@
+<style lang="less">
+@import '../global.less';
+.home_title {
+  height: 48rpx;
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-between;
+  .title {
+    font-size: 36rpx;
+    font-weight: bolder;
+    color: #333;
+    position: relative;
+    padding-left: 20rpx;
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      margin-top: -16rpx;
+      width: 8rpx;
+      height: 32rpx;
+      background: linear-gradient(#4a9ff0, #4a7bf0);
+    }
+  }
+  .btn {
+    font-size: 28rpx;
+    color: #999999;
+    .changeicon {
+      width: 15px;
+      height: 15px;
+      margin: 6px;
+    }
+    display: flex;
+    align-items: center;
+  }
+}
+</style>
+<template>
+  <view class="home_title">
+    <view class="title">{{text}}</view>
+    <view
+      wx:if="{{type === 'true'}}"
+      class="btn"
+      @tap="change"
+    >
+      换一换
+    </view>
+  </view>
+</template>
+<script>
+import wepy from 'wepy';
+import { $_baseUrl, $_imgUrl } from '../base.js';
+export default class home_title extends wepy.component {
+  props = {
+    text: String,
+    type: {
+      type: String,
+      default: 'true'
+    }
+  };
+  data = {
+    imgUrl: $_imgUrl,
+    baseUrl: $_baseUrl
+  };
+  methods = {
+    change() {
+      this.$emit('change', '您点击了');
+    }
+  };
+}
+</script>

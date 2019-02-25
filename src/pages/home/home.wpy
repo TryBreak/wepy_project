@@ -1,0 +1,52 @@
+<style lang="less">
+@import '../../global.less';
+.wrapper {
+  background-color: @mainColor;
+  height: 100vh;
+}
+</style>
+<template>
+  <view class="wrapper">
+    <image
+      wx:if="{{imgUrl}}"
+      src="{{imgUrl}}/footerBar/home.png"
+    ></image>
+    这里是小程序页面
+    <home_title
+      :text.sync="title"
+      @change="events"
+    />
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy';
+import http from '../../mixins/http.js';
+import utils from '../../mixins/utils.js';
+import { $_baseUrl, $_imgUrl } from '../../base.js';
+import home_title from '../../components/home_title';
+export default class home extends wepy.page {
+  config = {
+    navigationBarTitleText: '这里是title'
+  };
+  mixins = [http, utils];
+  // 组件
+  components = { home_title };
+  // 计算属性
+  computed = {};
+  // 事件函数
+  methods = {};
+  data = {
+    imgUrl: $_imgUrl,
+    baseUrl: $_baseUrl,
+    title: 'title'
+  };
+  events = {
+    change: param => {
+      console.log(param);
+    }
+  };
+  onShow() {}
+  onHide() {}
+}
+</script>
